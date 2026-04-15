@@ -122,7 +122,8 @@
             <select id="monthSelect" class="month-select w-full p-4 rounded-lg border-0 focus:ring-2 focus:ring-indigo-500 text-lg shadow-md cursor-pointer">
                 <option value="july">July 2025</option>
                 <option value="august">August 2025</option>
-                <option value="december" selected>December 2025</option>
+                <option value="december">December 2025</option>
+                <option value="april" selected>April 2026</option>
             </select>
         </div>
     </div>
@@ -207,6 +208,7 @@
             <table id="resultsTable" class="responsive-table min-w-full">
                 <thead>
                     <tr class="bg-indigo-600 text-white">
+                        <th class="p-3 text-left">Sl.No</th>
                         <th class="p-3 text-left">Rank</th>
                         <th class="p-3 text-left">Student's Name</th>
                         <th class="p-3 text-left">Class Time</th>
@@ -276,6 +278,7 @@
 
             if (isDecemberData) {
                 row.innerHTML = `
+                    <td class="p-3 text-gray-500">${student.sl_no || '-'}</td>
                     <td class="p-3 font-medium">${student.rank || '-'}</td>
                     <td class="p-3">${student.highlightedName || student.name}</td>
                     <td class="p-3">${student.class_time}</td>
@@ -285,6 +288,7 @@
                 `;
             } else {
                 row.innerHTML = `
+                    <td class="p-3 text-gray-500">${student.sl_no || '-'}</td>
                     <td class="p-3 font-medium">${student.rank || '-'}</td>
                     <td class="p-3">${student.highlightedName || student.name}</td>
                     <td class="p-3">${student.class_time}</td>
@@ -372,7 +376,8 @@
         const fileMap = {
             'july': './result_july.json',
             'august': './result_august.json',
-            'december': './result_december.json'
+            'december': './result_december.json',
+            'april': './result_april.json'
         };
         
         const pdfMap = {
@@ -389,8 +394,8 @@
                     document.getElementById('tableContainer').style.display = 'none';
                     document.getElementById('pdfViewer').src = pdfMap[month];
                     
-                    const monthNames = { 'july': 'July', 'august': 'August', 'december': 'December' };
-                    document.getElementById('resultTitle').textContent = `Test Results (${monthNames[month]} 2025)`;
+                    const monthNames = { 'july': 'July 2025', 'august': 'August 2025', 'december': 'December 2025', 'april': 'April 2026' };
+                    document.getElementById('resultTitle').textContent = `Test Results (${monthNames[month]})`;
                     return;
                 }
             } catch (error) {
@@ -407,8 +412,8 @@
             if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             currentData = await response.json();
             
-            const monthNames = { 'july': 'July', 'august': 'August', 'december': 'December' };
-            document.getElementById('resultTitle').textContent = `Test Results (${monthNames[month]} 2025)`;
+            const monthNames = { 'july': 'July 2025', 'august': 'August 2025', 'december': 'December 2025', 'april': 'April 2026' };
+            document.getElementById('resultTitle').textContent = `Test Results (${monthNames[month]})`;
             
             populateTable(currentData);
             populateTopTables(currentData);
@@ -420,7 +425,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        loadResults('december'); // Default to December
+        loadResults('april'); // Default to April
         document.getElementById('monthSelect').addEventListener('change', (e) => loadResults(e.target.value));
         document.getElementById('searchInput').addEventListener('input', filterTable);
     });
