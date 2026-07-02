@@ -62,13 +62,13 @@
                 font-size: 12px;
                 min-width: 400px;
             }
-            
+
             .december-table th,
             .december-table td {
                 padding: 8px 4px !important;
                 white-space: nowrap;
             }
-            
+
             .december-table th:nth-child(n+8),
             .december-table td:nth-child(n+8) {
                 display: none !important;
@@ -87,23 +87,23 @@
             border: none;
             border-radius: 10px;
         }
-        
+
         @media (max-width: 768px) {
             .pdf-viewer {
                 height: 70vh;
                 width: 100%;
             }
-            
+
             .pdf-container {
                 padding: 8px !important;
                 margin: 0 !important;
             }
         }
-        
+
         .pdf-container {
             display: none;
         }
-        
+
         .table-container {
             display: block;
         }
@@ -123,7 +123,8 @@
                 <option value="july">July 2025</option>
                 <option value="august">August 2025</option>
                 <option value="december">December 2025</option>
-                <option value="april" selected>April 2026</option>
+                <option value="april">April 2026</option>
+                <option value="june" selected>June 2026</option>
             </select>
         </div>
     </div>
@@ -141,7 +142,7 @@
     <div id="writtenTestHeader" class="text-center mb-6" style="display: none;">
         <h2 class="text-3xl font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 p-4 rounded-lg shadow-lg">Written Test</h2>
     </div>
-    
+
     <div id="topStudentsCard" class="card p-4 mb-8">
         <div class="w-full">
             <h3 class="text-xl font-bold text-indigo-800 mb-2 border-b-2 border-indigo-200 pb-1 text-center">OVERALL TOP-10 STUDENTS</h3>
@@ -236,17 +237,17 @@
 
         // Update headers based on data type
         const isDecemberData = data.length > 0 && data[0].total_marks && data[0].obtained_marks;
-        
+
         // Add December class for mobile styling
         const table = document.getElementById('resultsTable');
         const tableWrapper = document.getElementById('tableWrapper');
-        
+
         if (isDecemberData) {
             table.classList.add('december-table');
             // Force horizontal scroll on mobile for December
             tableWrapper.style.overflowX = 'scroll';
             tableWrapper.style.webkitOverflowScrolling = 'touch';
-            
+
             document.getElementById('col4Header').textContent = 'Total Marks';
             document.getElementById('col5Header').textContent = 'Obtained';
             document.getElementById('col6Header').textContent = 'Percentage';
@@ -260,7 +261,7 @@
         } else {
             table.classList.remove('december-table');
             tableWrapper.style.overflowX = 'auto';
-            
+
             document.getElementById('col4Header').textContent = 'S.T/T.M';
             document.getElementById('col5Header').textContent = 'Typing Spd';
             document.getElementById('col6Header').textContent = 'WPR%';
@@ -307,7 +308,7 @@
     function populateTopTables(data) {
         // Check if it's December data
         const isDecemberData = data.length > 0 && data[0].total_marks && data[0].obtained_marks;
-        
+
         // Show/hide Written Test header for December
         const writtenTestHeader = document.getElementById('writtenTestHeader');
         if (isDecemberData) {
@@ -315,14 +316,14 @@
         } else {
             writtenTestHeader.style.display = 'none';
         }
-        
+
         // Hide entire top students card for December
         const topStudentsCard = document.getElementById('topStudentsCard');
         if (isDecemberData) {
             topStudentsCard.style.display = 'none';
         } else {
             topStudentsCard.style.display = 'block';
-            
+
             // Overall Top-10
             const overallTopBody = document.getElementById('overallTopBody');
             overallTopBody.innerHTML = '';
@@ -377,9 +378,10 @@
             'july': './result_july.json',
             'august': './result_august.json',
             'december': './result_december.json',
-            'april': './result_april.json'
+            'april': './result_april.json',
+            'june': './result_june.json'
         };
-        
+
         const pdfMap = {
             'december': './test-result-dec.pdf'
         };
@@ -393,8 +395,8 @@
                     document.getElementById('pdfContainer').style.display = 'block';
                     document.getElementById('tableContainer').style.display = 'none';
                     document.getElementById('pdfViewer').src = pdfMap[month];
-                    
-                    const monthNames = { 'july': 'July 2025', 'august': 'August 2025', 'december': 'December 2025', 'april': 'April 2026' };
+
+                    const monthNames = { 'july': 'July 2025', 'august': 'August 2025', 'december': 'December 2025', 'april': 'April 2026', 'june': 'June 2026' };
                     document.getElementById('resultTitle').textContent = `Test Results (${monthNames[month]})`;
                     return;
                 }
@@ -402,30 +404,47 @@
                 console.log('PDF not found, loading JSON data');
             }
         }
-        
+
         // Show table and hide PDF
         document.getElementById('pdfContainer').style.display = 'none';
         document.getElementById('tableContainer').style.display = 'block';
 
+        const monthNames = { 'july': 'July 2025', 'august': 'August 2025', 'december': 'December 2025', 'april': 'April 2026', 'june': 'June 2026' };
+        document.getElementById('resultTitle').textContent = `Test Results (${monthNames[month] || month})`;
+
         try {
             const response = await fetch(fileMap[month]);
-            if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            if (!response.ok) throw new Error('not found');
             currentData = await response.json();
-            
-            const monthNames = { 'july': 'July 2025', 'august': 'August 2025', 'december': 'December 2025', 'april': 'April 2026' };
-            document.getElementById('resultTitle').textContent = `Test Results (${monthNames[month]})`;
-            
+            const prev = document.getElementById('comingSoonMsg');
+            if (prev) prev.remove();
+            document.getElementById('topStudentsCard').style.display = 'block';
+            document.querySelector('.card.p-6.mb-8').style.display = 'block';
+            document.querySelector('.card.p-4:last-child').style.display = 'block';
             populateTable(currentData);
             populateTopTables(currentData);
             document.getElementById('searchInput').value = '';
         } catch (error) {
-            console.error('Error:', error);
-            document.getElementById('resultsBody').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500 font-bold">Error loading ${month} data. Ensure ${fileMap[month]} exists in the directory.</td></tr>`;
+            currentData = [];
+            document.getElementById('topStudentsCard').style.display = 'none';
+            document.getElementById('writtenTestHeader').style.display = 'none';
+            document.getElementById('resultsBody').innerHTML = '';
+            document.querySelector('.card.p-6.mb-8').style.display = 'none';
+            document.querySelector('.card.p-4:last-child').style.display = 'none';
+            document.getElementById('tableContainer').innerHTML += '';
+            // Show coming soon message
+            const existing = document.getElementById('comingSoonMsg');
+            if (existing) existing.remove();
+            const msg = document.createElement('div');
+            msg.id = 'comingSoonMsg';
+            msg.className = 'card p-10 text-center fade-in';
+            msg.innerHTML = `<div class="text-5xl mb-4">🕐</div><h3 class="text-2xl font-bold text-indigo-700 mb-2">Result Coming Soon</h3><p class="text-gray-500">${monthNames[month] || month} results are not available , contact your institute !.</p>`;
+            document.getElementById('tableContainer').appendChild(msg);
         }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        loadResults('april'); // Default to April
+        loadResults('june'); // Default to June
         document.getElementById('monthSelect').addEventListener('change', (e) => loadResults(e.target.value));
         document.getElementById('searchInput').addEventListener('input', filterTable);
     });
